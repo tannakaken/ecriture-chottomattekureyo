@@ -1,59 +1,116 @@
 <script lang="ts">
-	import Counter from './Counter.svelte';
-	import welcome from '$lib/images/svelte-welcome.webp';
-	import welcomeFallback from '$lib/images/svelte-welcome.png';
+	import { Spring } from 'svelte/motion';
+	import { toast } from '@zerodevx/svelte-toast';
+	import { db } from '../db';
+	import LoadModal from './LoadModal.svelte';
+
+	const count = new Spring(0);
+	const maxCount = 300;
+
+	let animationRequestId: number | undefined;
+	let title = '無題';
+	let targetSize = 400;
+	let body = '';
+	const cancelVanish = () => {
+		if (animationRequestId) {
+			cancelAnimationFrame(animationRequestId);
+		}
+	};
+	const vanishText = () => {
+		if (body.length === 0) {
+			count.target = 0;
+			cancelVanish();
+		}
+		if (count.current >= maxCount) {
+			body = '';
+			count.target = 0;
+			cancelVanish();
+		}
+		count.target += 1;
+		animationRequestId = requestAnimationFrame(vanishText);
+	};
+	let loadModal: LoadModal;
 </script>
 
 <svelte:head>
-	<title>Home</title>
-	<meta name="description" content="Svelte demo app" />
+	<title>Écriture ちょっと待ってくれよ</title>
+	<meta name="description" content="書き続けないと、文章が消えていくエディタで、エクリチュール・オートマティックが体験できるwebアプリ" />
 </svelte:head>
 
-<section>
-	<h1>
-		<span class="welcome">
-			<picture>
-				<source srcset={welcome} type="image/webp" />
-				<img src={welcomeFallback} alt="Welcome" />
-			</picture>
-		</span>
 
-		to your new<br />SvelteKit app
-	</h1>
-
-	<h2>
-		try editing <strong>src/routes/+page.svelte</strong>
-	</h2>
-
-	<Counter />
-</section>
+<div class="editor">
+	<h1>Écriture ちょっと待ってくれよ</h1>
+	<div class="input">
+		<label for="title">タイトル:</label>
+		<input type="text" id="title" bind:value={title} />
+	</div>
+	<div class="input">
+		<label for="target-size">目標文字数:</label>
+		<input type="number" id="target-size" bind:value={targetSize} />
+	</div>
+	<div>
+		<textarea
+			bind:value={body}
+			style="color: rgba(0, 0, 0, {(maxCount - count.current) / maxCount}"
+			onkeyup={() => {
+				count.target = 0;
+				cancelVanish();
+				vanishText();
+			}}
+			rows="10"
+			cols="50"
+			placeholder="止まらずに、書き続けろ……"
+		>
+		</textarea>
+	</div>
+	<button
+		type="button"
+		onclick={async () => {
+			try {
+				await db.ecritures.add({
+					title,
+					targetSize,
+					body
+				});
+				toast.push('保存しました。');
+			} catch (error) {
+				console.warn(error);
+			}
+		}}>保存</button
+	>
+	<button type="button" onclick={loadModal.open}>一覧</button>
+</div>
+<LoadModal
+	onSelect={async (ecriture) => {
+		try {
+			title = ecriture.title;
+			targetSize = ecriture.targetSize;
+			body = ecriture.body;
+		} catch (error) {
+			console.warn(error);
+		}
+	}}
+	{vanishText}
+	{cancelVanish}
+	bind:this={loadModal}
+/>
 
 <style>
-	section {
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
-		align-items: center;
-		flex: 0.6;
+	.input {
+		margin-bottom: 4px;
 	}
-
-	h1 {
-		width: 100%;
+	.input input {
+		border-width: 1px;
+		border-color: gray;
+		border-style: thin;
+		border-radius: 2px;
 	}
-
-	.welcome {
-		display: block;
-		position: relative;
+	.editor textarea {
 		width: 100%;
-		height: 0;
-		padding: 0 0 calc(100% * 495 / 2048) 0;
-	}
-
-	.welcome img {
-		position: absolute;
-		width: 100%;
-		height: 100%;
-		top: 0;
-		display: block;
+		border-width: 2px;
+		border-color: gray;
+		border-style: thin;
+		border-radius: 4px;
+		padding: 4px;
 	}
 </style>

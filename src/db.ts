@@ -1,21 +1,21 @@
-import Dexie, {type EntityTable} from "dexie";
+import Dexie, { type EntityTable } from 'dexie';
 
 type Ecriture = {
-    /**
-     * primary key
-     */
-    id: number;
-    title: string;
-    targetSize: number;
-    body: string;
-}
+	/**
+	 * primary key
+	 */
+	id: number;
+	title: string;
+	targetSize: number;
+	body: string;
+};
 
 const db = new Dexie('EcritureDatabase') as Dexie & {
-    ecritures: EntityTable<Ecriture, 'id'>;
+	ecritures: EntityTable<Ecriture, 'id'>;
 };
 
 db.version(1).stores({
-    ecritures: '++id, title, targetSize, body',
+	ecritures: '++id, title, targetSize, body'
 });
 
 export type { Ecriture };
