@@ -1,13 +1,19 @@
 import Dexie, { type EntityTable } from 'dexie';
 
-type Ecriture = {
+type EcritureInput = {
+	title: string;
+	minSize: number;
+	maxSize: number;
+	body: string;
+}
+
+type Ecriture = EcritureInput & {
 	/**
 	 * primary key
 	 */
 	id: number;
-	title: string;
-	targetSize: number;
-	body: string;
+	createdAt: string;
+	modifiedAt: string;
 };
 
 const db = new Dexie('EcritureDatabase') as Dexie & {
@@ -15,8 +21,8 @@ const db = new Dexie('EcritureDatabase') as Dexie & {
 };
 
 db.version(1).stores({
-	ecritures: '++id, title, targetSize, body'
+	ecritures: '++id, title, targetSize, body, createdAt, modifiedAt'
 });
 
-export type { Ecriture };
+export type { EcritureInput, Ecriture };
 export { db };
