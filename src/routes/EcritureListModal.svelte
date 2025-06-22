@@ -32,7 +32,6 @@
 			if (vanishing) {
 				changeEditing(true);
 			}
-			
 		}
 	};
 	const keyDownClose = (event: KeyboardEvent) => {
@@ -43,8 +42,8 @@
 	const select = async (ecriture: Ecriture) => {
 		await onSelect(ecriture);
 		changeEditing(false);
-		closeDialog(false)
-	}
+		closeDialog(false);
+	};
 	const remove = async (ecriture: Ecriture) => {
 		await db.ecritures.delete(ecriture.id);
 		if (ecritures.length === 1) {
@@ -53,7 +52,7 @@
 			ecritures = ecritures.filter((item) => item.id !== ecriture.id);
 		}
 		onRemove();
-	}
+	};
 </script>
 
 <svelte:window on:keydown={keyDownClose} />
@@ -65,7 +64,6 @@
 			top <= clientY && clientY <= top + height && left <= clientX && clientX <= left + width;
 		if (!inDialog) {
 			closeDialog(true);
-
 		}
 	}}
 >
@@ -74,10 +72,7 @@
 		<ul class="item-list">
 			{#each ecritures as ecriture}
 				<li class="ecriture">
-					<EcritureCard
-						{ecriture}
-						{select}
-						{remove} />
+					<EcritureCard {ecriture} {select} {remove} />
 				</li>
 			{/each}
 		</ul>
@@ -86,7 +81,7 @@
 
 <style>
 	.item-list {
-		list-style: none;	
+		list-style: none;
 	}
 	dialog {
 		position: absolute;
@@ -98,24 +93,24 @@
 		animation: fade-out 0.7s ease-out;
 	}
 	dialog[open] {
- 	 	animation: fade-in 0.7s ease-out;
+		animation: fade-in 0.7s ease-out;
 	}
 
 	dialog[open]::backdrop {
-  		animation: backdrop-fade-in 0.7s ease-out forwards;
+		animation: backdrop-fade-in 0.7s ease-out forwards;
 	}
 	@keyframes fade-in {
 		0% {
-    		opacity: 0;
-    		scale: 0.5;
-    		display: none;
-	    }
+			opacity: 0;
+			scale: 0.5;
+			display: none;
+		}
 
-  		100% {
-    		opacity: 1;
-    		scale: 1;
-    		display: block;
-  		}
+		100% {
+			opacity: 1;
+			scale: 1;
+			display: block;
+		}
 	}
 
 	@keyframes fade-out {
@@ -141,6 +136,4 @@
 			background-color: rgb(0 0 0 / 25%);
 		}
 	}
-
-
 </style>

@@ -105,3 +105,24 @@ button:focus:not(:focus-visible) {
 	width: 1px;
 	white-space: nowrap;
 }
+
+.actions button {
+	cursor: pointer;
+	margin: 4px;
+	padding: 2.5px 5px;
+	border-radius: 10px;
+	background: var(--color-theme-1);
+	color: white;
+}
+
+.actions button:hover {
+	opacity: 0.8;
+}
+
+.actions button:focus {
+	opacity: 0.8;
+}
+
+input[type='checkbox'] {
+	accent-color: var(--color-theme-1);
+}

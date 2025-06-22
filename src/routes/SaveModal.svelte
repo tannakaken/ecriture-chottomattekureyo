@@ -8,7 +8,7 @@
 		changeEditing: (editing: boolean) => void;
 	};
 
-	let { ecriture, create, update, changeEditing, }: Props = $props();
+	let { ecriture, create, update, changeEditing }: Props = $props();
 
 	let dialog: HTMLDialogElement;
 	export const open = async () => {
@@ -47,21 +47,21 @@
 	<div class="modal-content">
 		<h2>{ecriture.title}を上書き保存しますか？</h2>
 		<div class="actions">
-        	<button
-            	type="button"
-            	onclick={async () => {
-					await update(ecriture);
-					closeDialog();
-				}}>上書き保存</button>
-        	<button
-            	type="button"
-            	onclick={async () => {
-					await create(ecriture);
-					closeDialog();
-				}}>新規作成</button>
 			<button
 				type="button"
-				onclick={closeDialog}>キャンセル</button>
+				onclick={async () => {
+					await update(ecriture);
+					closeDialog();
+				}}>上書き保存</button
+			>
+			<button
+				type="button"
+				onclick={async () => {
+					await create(ecriture);
+					closeDialog();
+				}}>新規作成</button
+			>
+			<button type="button" onclick={closeDialog}>キャンセル</button>
 		</div>
 	</div>
 </dialog>
@@ -77,24 +77,24 @@
 		animation: fade-out 0.7s ease-out;
 	}
 	dialog[open] {
- 	 	animation: fade-in 0.7s ease-out;
+		animation: fade-in 0.7s ease-out;
 	}
 
 	dialog[open]::backdrop {
-  		animation: backdrop-fade-in 0.7s ease-out forwards;
+		animation: backdrop-fade-in 0.7s ease-out forwards;
 	}
 	@keyframes fade-in {
 		0% {
-    		opacity: 0;
-    		scale: 0.5;
-    		display: none;
-	    }
+			opacity: 0;
+			scale: 0.5;
+			display: none;
+		}
 
-  		100% {
-    		opacity: 1;
-    		scale: 1;
-    		display: block;
-  		}
+		100% {
+			opacity: 1;
+			scale: 1;
+			display: block;
+		}
 	}
 
 	@keyframes fade-out {
@@ -121,8 +121,8 @@
 		}
 	}
 	.actions button {
- 	   border: 1px solid #ccc;
-    	background: #fafafa;
-	    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+		border: 1px solid #ccc;
+		background: #fafafa;
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 	}
 </style>

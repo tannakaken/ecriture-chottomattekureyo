@@ -6,6 +6,7 @@
 	import dayjs from 'dayjs';
 	import SaveModal from './SaveModal.svelte';
 	import { onMount } from 'svelte';
+	import { removeExtension, stringToDataURL } from '../utils';
 
 	/**
 	 * 今現在表示しているエクリチュールがIndexedDBに保存済みのものを編集した場合、そのID
@@ -28,7 +29,7 @@
 	 */
 	const vanishEcriture = () => {
 		if (vanishCount.current >= maxVanishCount) {
-			editingState = editingState.change("", true);
+			editingState = editingState.change('', true);
 		}
 		vanishCount.target += 1;
 		animationRequestId = requestAnimationFrame(vanishEcriture);
@@ -47,7 +48,7 @@
 	const resetVanish = () => {
 		cancelVanish();
 		vanishCount.target = 0;
-	}
+	};
 
 	class EditingState {
 		private _body: string;
@@ -67,7 +68,7 @@
 			this._editing = editing;
 			return this;
 		}
-	};
+	}
 
 	/**
 	 * エクリチュールが空で編集中の状態。
@@ -82,9 +83,9 @@
 				vanishEcriture();
 				return new Progress(body, editing);
 			}
-			return super.change(body, editing);;
+			return super.change(body, editing);
 		}
-	};
+	}
 
 	/**
 	 * エクリチュールが空ではなく、編集中の状態
@@ -107,7 +108,7 @@
 			vanishEcriture();
 			return super.change(body, editing);
 		}
-	};
+	}
 
 	class NonEditing extends EditingState {
 		change(body: string, editing: boolean): EditingState {
@@ -122,17 +123,17 @@
 			return new Progress(body, editing);
 		}
 	}
-	let editingState = new Empty("", true);
+	let editingState = new Empty('', true);
 	let title = '無題';
 	let minSize = 400;
 	let maxSize = 800;
 
 	const changeEditing = (editing: boolean) => {
 		editingState = editingState.change(editingState.body, editing);
-	}
+	};
 	let ecritureListModal: EcritureListModal;
 	let saveModal: SaveModal;
-	const create = async ({title, minSize, maxSize, body}: EcritureInput) => {
+	const create = async ({ title, minSize, maxSize, body }: EcritureInput) => {
 		try {
 			const now = dayjs();
 			const nowString = now.format();
@@ -142,15 +143,15 @@
 				maxSize,
 				body,
 				createdAt: nowString,
-				modifiedAt: nowString,
+				modifiedAt: nowString
 			});
 			ecritureCount += 1;
 			toast.push('新規保存しました。');
 		} catch (error) {
 			console.warn(error);
 		}
-	}
-	const update = async ({title, minSize, maxSize, body}: EcritureInput) => {
+	};
+	const update = async ({ title, minSize, maxSize, body }: EcritureInput) => {
 		try {
 			const now = dayjs();
 			const nowString = now.format();
@@ -165,18 +166,20 @@
 		} catch (error) {
 			console.warn(error);
 		}
-	}
+	};
 	let ecritureCount = 0;
 	onMount(async () => {
 		ecritureCount = await db.ecritures.count();
-	})
+	});
 </script>
 
 <svelte:head>
 	<title>Écriture ちょっと待ってくれよ</title>
-	<meta name="description" content="書き続けないと、文章が消えていくエディタで、エクリチュール・オートマティックが体験できるwebアプリ" />
+	<meta
+		name="description"
+		content="書き続けないと、文章が消えていくエディタで、エクリチュール・オートマティックが体験できるwebアプリ"
+	/>
 </svelte:head>
-
 
 <div class="editor">
 	<h1>Écriture ちょっと待ってくれよ</h1>
@@ -186,15 +189,32 @@
 	</div>
 	<div class="input">
 		<span>目標文字数:</span>
-		<input type="number" id="min-size" aria-label="下限文字数" title="下限文字数" bind:value={minSize} />
+		<input
+			type="number"
+			id="min-size"
+			aria-label="下限文字数"
+			title="下限文字数"
+			bind:value={minSize}
+		/>
 		~
-		<input type="number" id="max-size" aria-label="上限文字数" title="上限文字数" bind:value={maxSize} />
+		<input
+			type="number"
+			id="max-size"
+			aria-label="上限文字数"
+			title="上限文字数"
+			bind:value={maxSize}
+		/>
 	</div>
 	<div>
 		<label for="editting">編集中:</label>
-		<input type="checkbox" id="editting" checked={editingState.editing} onchange={(event) => {
-			editingState = editingState.change(editingState.body, event.currentTarget.checked);
-		}} />
+		<input
+			type="checkbox"
+			id="editting"
+			checked={editingState.editing}
+			onchange={(event) => {
+				editingState = editingState.change(editingState.body, event.currentTarget.checked);
+			}}
+		/>
 	</div>
 	<div>
 		<textarea
@@ -208,20 +228,56 @@
 			readonly={!editingState.editing}
 		></textarea>
 	</div>
-	{#if editingState.body.length > 0}
-	<button
-		type="button"
-		onclick={async () => {
-			if (ecritureId === undefined) {
-				create({title, minSize, maxSize, body: editingState.body});
-			} else {
-				saveModal.open();
-			}
-		}}>保存</button
-	>
-	{/if}
-	{#if ecritureCount > 0}<button type="button" onclick={ecritureListModal.open}>一覧</button>{/if}
+	<div class="actions">
+		{#if editingState.body.length > 0}
+			<button
+				type="button"
+				onclick={async () => {
+					if (ecritureId === undefined) {
+						create({ title, minSize, maxSize, body: editingState.body });
+					} else {
+						saveModal.open();
+					}
+				}}>保存</button
+			>
+		{/if}
+		{#if ecritureCount > 0}<button type="button" onclick={ecritureListModal.open}>一覧</button>{/if}
+	</div>
+	<div class="actions local-actions">
+		<button
+			type="button"
+			onclick={async () => {
+				const dataUrl = await stringToDataURL(editingState.body);
+				const a = document.createElement('a');
+				a.href = dataUrl;
+				a.download = `${title}.txt`;
+				a.click();
+			}}>ローカルにファイルを保存</button
+		>
+		<button
+			type="button"
+			onclick={() => {
+				document.getElementById('upload-file-picker')?.click();
+			}}>ローカルのファイルをロード</button
+		>
+		<input
+			type="file"
+			accept="text/plain"
+			style="display: none"
+			id="upload-file-picker"
+			onchange={async (event) => {
+				const file = event.currentTarget.files?.[0];
+				if (file === undefined) {
+					return;
+				}
+				title = removeExtension(file.name);
+				const body = await file.text();
+				editingState = editingState.change(body, false);
+			}}
+		/>
+	</div>
 </div>
+
 <EcritureListModal
 	onSelect={async (ecriture) => {
 		try {
@@ -245,14 +301,13 @@
 		title,
 		minSize,
 		maxSize,
-		body: editingState.body,
+		body: editingState.body
 	}}
 	{create}
 	{update}
 	{changeEditing}
 	bind:this={saveModal}
 />
-
 
 <style>
 	.input {

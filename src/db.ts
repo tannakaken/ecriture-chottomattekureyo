@@ -5,7 +5,7 @@ type EcritureInput = {
 	minSize: number;
 	maxSize: number;
 	body: string;
-}
+};
 
 type Ecriture = EcritureInput & {
 	/**
