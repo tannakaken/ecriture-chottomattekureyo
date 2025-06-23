@@ -3,9 +3,28 @@
 	<head>
 		<meta charset="utf-8" />
 		<link rel="icon" href="%sveltekit.assets%/favicon.png" />
+		<!-- pwa化のために@vite-pwa/sveltekitを導入しようとしたが、うまくいかなかった -->
+		<!-- 次を参考にして手動で設定をしてみた: https://baapuro.com/Svelte/five/ -->
 		<link rel="manifest" href="manifest.webmanifest" />
+		<script>
+			"use strict"
+			const registWerviceWorker = () => {
+				if('serviceWorker' in navigator) {
+					window.addEventListener(
+						'load', 
+						() => {
+							navigator.serviceWorker.register('./sw.js', { scope: './' }).then((registration) => {
+								console.log("ServiceWorker registration successful with scope:", registration.scope);
+							}).catch((error) => {
+								console.warn("ServiceWorker registration failed:", err);
+							})
+						}
+					);
+				}
+			};
+			registWerviceWorker();
+		</script>
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		<link rel="modulepreload" href="./registerSW.js">
 		%sveltekit.head%
 	</head>
 	<body data-sveltekit-preload-data="hover">
