@@ -3,12 +3,19 @@
 	import EcritureCard from './EcritureCard.svelte';
 
 	type Props = {
-		changeEditing: (editing: boolean) => void;
 		onSelect: (ecriture: Ecriture) => Promise<void>;
 		onRemove: () => void;
+		/**
+		 * テクスト消失を一時停止する。
+		 */
+		pause: () => void;
+		/**
+		 * テクスト消失を元の状態に戻す（もともとが止まっていたら止まったまま。もともとは動いていたら再開する）。
+		 */
+		resume: () => void;
 	};
 
-	let { onSelect, changeEditing, onRemove }: Props = $props();
+	let { onSelect, onRemove, pause, resume }: Props = $props();
 
 	let dialog: HTMLDialogElement;
 	let ecritures: Ecriture[] = $state([]);
@@ -16,7 +23,7 @@
 		if (dialog.open) {
 			return;
 		}
-		changeEditing(false);
+		pause();
 		try {
 			ecritures = await db.ecritures.toArray();
 		} catch (error) {
@@ -25,29 +32,26 @@
 		document.body.style.overflow = 'hidden';
 		dialog.showModal();
 	};
-	const closeDialog = (vanishing: boolean) => {
+	const closeDialog = () => {
 		if (dialog.open) {
 			document.body.style.overflow = '';
 			dialog.close();
-			if (vanishing) {
-				changeEditing(true);
-			}
+			resume();
 		}
 	};
 	const keyDownClose = (event: KeyboardEvent) => {
 		if (event.code === 'Escape') {
-			closeDialog(true);
+			closeDialog();
 		}
 	};
 	const select = async (ecriture: Ecriture) => {
 		await onSelect(ecriture);
-		changeEditing(false);
-		closeDialog(false);
+		closeDialog();
 	};
 	const remove = async (ecriture: Ecriture) => {
 		await db.ecritures.delete(ecriture.id);
 		if (ecritures.length === 1) {
-			closeDialog(true);
+			closeDialog();
 		} else {
 			ecritures = ecritures.filter((item) => item.id !== ecriture.id);
 		}
@@ -63,12 +67,12 @@
 		const inDialog =
 			top <= clientY && clientY <= top + height && left <= clientX && clientX <= left + width;
 		if (!inDialog) {
-			closeDialog(true);
+			closeDialog();
 		}
 	}}
 >
 	<div class="modal-content">
-		<h2>保存された文書一覧 <button onclick={() => closeDialog(true)}>close</button></h2>
+		<h2>保存された文書一覧 <button onclick={closeDialog}>close</button></h2>
 		<ul class="item-list">
 			{#each ecritures as ecriture}
 				<li class="ecriture">

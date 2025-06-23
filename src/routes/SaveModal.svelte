@@ -5,15 +5,22 @@
 		ecriture: EcritureInput;
 		create: (ecriture: EcritureInput) => Promise<void>;
 		update: (ecriture: EcritureInput) => Promise<void>;
-		changeEditing: (editing: boolean) => void;
+		/**
+		 * テクスト消失を一時停止する。
+		 */
+		pause: () => void;
+		/**
+		 * テクスト消失を元の状態に戻す（もともとが止まっていたら止まったまま。もともとは動いていたら再開する）。
+		 */
+		resume: () => void;
 	};
 
-	let { ecriture, create, update, changeEditing }: Props = $props();
+	let { ecriture, create, update, pause, resume }: Props = $props();
 
 	let dialog: HTMLDialogElement;
 	export const open = async () => {
 		if (!dialog.open) {
-			changeEditing(false);
+			pause();
 			document.body.style.overflow = 'hidden';
 			dialog.showModal();
 		}
@@ -22,7 +29,7 @@
 		if (dialog.open) {
 			document.body.style.overflow = '';
 			dialog.close();
-			changeEditing(true);
+			resume();
 		}
 	};
 	const keyDownClose = (event: KeyboardEvent) => {
@@ -119,10 +126,5 @@
 		100% {
 			background-color: rgb(0 0 0 / 25%);
 		}
-	}
-	.actions button {
-		border: 1px solid #ccc;
-		background: #fafafa;
-		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 	}
 </style>

@@ -29,7 +29,8 @@
 	 */
 	const vanishEcriture = () => {
 		if (vanishCount.current >= maxVanishCount) {
-			editingState = editingState.change('', true);
+			changeEditingState({body: "", editing: true});
+			return;
 		}
 		vanishCount.target += 1;
 		animationRequestId = requestAnimationFrame(vanishEcriture);
@@ -40,6 +41,7 @@
 	const cancelVanish = () => {
 		if (animationRequestId) {
 			cancelAnimationFrame(animationRequestId);
+			animationRequestId = undefined;
 		}
 	};
 	/**
@@ -50,10 +52,18 @@
 		vanishCount.target = 0;
 	};
 
+	/**
+	 * ページの状態の変化時に、正しく処理をするために、
+	 * Stateデザインパターンを使う。
+	 */
 	class EditingState {
 		private _body: string;
 		get body() {
 			return this._body;
+		}
+		private _length: number;
+		get length() {
+			return this._length;
 		}
 		private _editing: boolean;
 		get editing() {
@@ -61,12 +71,21 @@
 		}
 		constructor(body: string, editing: boolean) {
 			this._body = body;
+			// 「🐍」のようなUTF-16のサロゲートペアなどがある場合、単にコードユニットの数を返すJavaScriptのString: lengthは文字数を返さない。
+			// 文字数を返す正しい方法は以下のドキュメントを参考にした。
+			// https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Global_Objects/String/length#unicode
+			this._length = [...body].length;
 			this._editing = editing;
 		}
 		change(body: string, editing: boolean): EditingState {
 			this._body = body;
+			this._length = [...body].length;
 			this._editing = editing;
 			return this;
+		}
+		pause(): EditingState {
+			cancelVanish();
+			return new Paused(this.body, this.editing);
 		}
 	}
 
@@ -110,6 +129,9 @@
 		}
 	}
 
+	/**
+	 * 編集不可能状態
+	 */
 	class NonEditing extends EditingState {
 		change(body: string, editing: boolean): EditingState {
 			if (!editing) {
@@ -123,21 +145,60 @@
 			return new Progress(body, editing);
 		}
 	}
-	let editingState = new Empty('', true);
+	/**
+	 * 一時停止状態。
+	 * 一時停止状態の前に戻ることが可能。
+	 */
+	class Paused extends EditingState {
+		restart(): EditingState {
+			if (this.editing === false) {
+				return new NonEditing(this.body, this.editing);
+			}
+			if (this.body.length === 0) {
+				return new Empty(this.body, this.editing);
+			}
+			vanishEcriture();
+			return new Progress(this.body, this.editing);
+		}
+	}
+	let currentEditingState = new Empty('', true);
+	const changeEditingState = ({
+		body,
+		editing,
+	}: Partial<{body: string, editing: boolean}>) => {
+		if (body === undefined) {
+			if (editing === undefined) {
+				// do nothing
+			} else {
+				currentEditingState = currentEditingState.change(currentEditingState.body, editing);
+			}
+		} else {
+			if (editing === undefined) {
+				currentEditingState = currentEditingState.change(body, currentEditingState.editing);
+			} else {
+				currentEditingState = currentEditingState.change(body, editing);
+			}
+		}
+	}
+	const pause = () => {
+		currentEditingState = currentEditingState.pause();
+	}
+	const resume = () => {
+		if (currentEditingState instanceof Paused) {
+			currentEditingState = currentEditingState.restart();
+		}
+	}
 	let title = '無題';
 	let minSize = 400;
 	let maxSize = 800;
 
-	const changeEditing = (editing: boolean) => {
-		editingState = editingState.change(editingState.body, editing);
-	};
 	let ecritureListModal: EcritureListModal;
 	let saveModal: SaveModal;
 	const create = async ({ title, minSize, maxSize, body }: EcritureInput) => {
 		try {
 			const now = dayjs();
 			const nowString = now.format();
-			await db.ecritures.add({
+			ecritureId = await db.ecritures.add({
 				title,
 				minSize,
 				maxSize,
@@ -171,6 +232,15 @@
 	onMount(async () => {
 		ecritureCount = await db.ecritures.count();
 	});
+	const diffLength = () => {
+		if (currentEditingState.length < minSize) {
+			return `（${minSize - currentEditingState.length}文字足りない）`;
+		}
+		if (currentEditingState.length > maxSize) {
+			return `（${currentEditingState.length - maxSize}文字多い）`;
+		}
+		return "";
+	}
 </script>
 
 <svelte:head>
@@ -210,31 +280,40 @@
 		<input
 			type="checkbox"
 			id="editting"
-			checked={editingState.editing}
+			checked={currentEditingState.editing}
 			onchange={(event) => {
-				editingState = editingState.change(editingState.body, event.currentTarget.checked);
+				changeEditingState({editing: event.currentTarget.checked})
 			}}
 		/>
 	</div>
 	<div>
+		現在の文字数:{currentEditingState.length}{diffLength()}
+	</div>
+	<div>
 		<textarea
-			value={editingState.body}
-			onkeydown={(event) => {
-				editingState = editingState.change(event.currentTarget.value, editingState.editing);
+			value={currentEditingState.body}
+			oninput={(event) => {
+				// onchangeだと編集が全て終わってフォーカスが移動してからの変更になる。
+				// onkeydownだとキーボード入力で内容が変わる前のデータが手に入ってしまう。
+				// onkeyupだと、マウスのみによるペーストには機能しない。
+				// よってoninputにする。
+				// 以下を参考にした。
+				// https://stackoverflow.com/questions/28062447/fire-event-with-right-mouse-click-and-paste
+				changeEditingState({body: event.currentTarget.value});
 			}}
 			style="color: rgba(0, 0, 0, {(maxVanishCount - vanishCount.current) / maxVanishCount}"
 			rows="10"
 			placeholder="止まらずに、書き続けろ……"
-			readonly={!editingState.editing}
+			readonly={!currentEditingState.editing}
 		></textarea>
 	</div>
 	<div class="actions">
-		{#if editingState.body.length > 0}
+		{#if currentEditingState.body.length > 0}
 			<button
 				type="button"
 				onclick={async () => {
 					if (ecritureId === undefined) {
-						create({ title, minSize, maxSize, body: editingState.body });
+						create({ title, minSize, maxSize, body: currentEditingState.body });
 					} else {
 						saveModal.open();
 					}
@@ -247,7 +326,7 @@
 		<button
 			type="button"
 			onclick={async () => {
-				const dataUrl = await stringToDataURL(editingState.body);
+				const dataUrl = await stringToDataURL(currentEditingState.body);
 				const a = document.createElement('a');
 				a.href = dataUrl;
 				a.download = `${title}.txt`;
@@ -257,6 +336,7 @@
 		<button
 			type="button"
 			onclick={() => {
+				pause();
 				document.getElementById('upload-file-picker')?.click();
 			}}>ローカルのファイルをロード</button
 		>
@@ -272,7 +352,12 @@
 				}
 				title = removeExtension(file.name);
 				const body = await file.text();
-				editingState = editingState.change(body, false);
+				changeEditingState({body, editing: false});
+				resume();
+			}}
+			oncancel={() => {
+				// ファイルピッカーをキャンセルしたとき
+				resume();
 			}}
 		/>
 	</div>
@@ -285,7 +370,8 @@
 			minSize = ecriture.minSize;
 			maxSize = ecriture.maxSize;
 			ecritureId = ecriture.id;
-			editingState = editingState.change(ecriture.body, false);
+			changeEditingState({body: ecriture.body, editing: false});
+			resetVanish();
 		} catch (error) {
 			console.warn(error);
 		}
@@ -293,7 +379,8 @@
 	onRemove={() => {
 		ecritureCount -= 1;
 	}}
-	{changeEditing}
+	{pause}
+	{resume}
 	bind:this={ecritureListModal}
 />
 <SaveModal
@@ -301,11 +388,12 @@
 		title,
 		minSize,
 		maxSize,
-		body: editingState.body
+		body: currentEditingState.body
 	}}
 	{create}
 	{update}
-	{changeEditing}
+	{pause}
+	{resume}
 	bind:this={saveModal}
 />
 
