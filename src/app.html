@@ -16,7 +16,7 @@
 							navigator.serviceWorker.register('./sw.js', { scope: './' }).then((registration) => {
 								console.log("ServiceWorker registration successful with scope:", registration.scope);
 							}).catch((error) => {
-								console.warn("ServiceWorker registration failed:", err);
+								console.warn("ServiceWorker registration failed:", error);
 							})
 						}
 					);
