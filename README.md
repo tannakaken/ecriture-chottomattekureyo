@@ -1,38 +1,39 @@
-# sv
+# Écriture ちょっと待ってくれよ
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+このアプリは[自動書記（エクリチュール・オートマティック）](https://ja.wikipedia.org/wiki/%E8%87%AA%E5%8B%95%E6%9B%B8%E8%A8%98)
+を行うためのエディタである。
 
-## Creating a project
+自動書記とは、自分の意思を離れて文字を書く一種の超常現象である。
 
-If you're seeing this, you've probably already done this step. Congrats!
+通常は、何らかの憑依現象がその説明として持ち出される。
 
-```bash
-# create a new project in the current directory
-npx sv create
+これを手法へと転化したのが、シュルレアリスムの「オートマティスム」である。
+これは、できるだけ（常軌を逸するような）速さで文章を書くことで、
+美意識や倫理観のような意識が邪魔をしないような文章を書く文学実験であった。
+これによって、シュルレアリストたちは、自分たちが過ごす通常の現実の内部にある、
+現実を越えた現実、過剰な現実、「超現実」が露わになると考えたのだ。
 
-# create a new project in my-app
-npx sv create my-app
-```
+このアプリでは、文章を編集し続けないと、文章を消してしまうことにより、
+強制的に自動書記をさせることを実現している。
 
-## Developing
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+日本語で自動書記を行う場合、タッチタイピングは必須になるので、もしまだできない人は、
+タイピングの練習をするべきかもしれない。
 
-```bash
-npm run dev
+以下で公開。
 
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
+https://ecriture-chottomattekureyo.vercel.app/
 
-## Building
+## インストール
 
-To create a production version of your app:
+このwebアプリは[プログレッシブウェブアプリ (PWA)](https://developer.mozilla.org/ja/docs/Web/Progressive_web_apps)なので、
+端末にインストールして、完全にオフラインで使うことができます。
 
-```bash
-npm run build
-```
+- デスクトップの場合は、ブラウザで開いたときにアドレスバーの右側にダウンロードボタンが表示されるはずです。
+それを推せば、端末にインストールされ、OSからアプリとして実行できます。
+- androidでは、chromeでアクセスすれば、インストールの通知が表示され、インストールすれば、アプリとして使うことができます。
+- iOSではsafariを使って開き、共有ボタンで「ホーム画面に追加」をすることで、アプリとして使うことができます。
 
-You can preview the production build with `npm run preview`.
+## 作者
 
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+tannakaken <tannakaken@gmail.com>
