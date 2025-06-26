@@ -1,5 +1,7 @@
 //キャッシュ名(=バージョン)を指定する
-var CACHE_NAME = "ecriture-chottomattekureyo-v1";
+// 更新した場合、バージョン名を更新する。
+// すると古いキャッシュは削除されて、ページが更新される。
+var CACHE_NAME = "ecriture-chottomattekureyo-v2";
 //キャッシュするファイル or ディレクトリを指定する
 var urlsToCache = [
    "/",
