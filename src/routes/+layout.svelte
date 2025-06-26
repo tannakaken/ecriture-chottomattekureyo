@@ -14,9 +14,11 @@
 	</main>
 
 	<footer>
-		<p>
-			visit <a href="https://svelte.dev/docs/kit">svelte.dev/docs/kit</a> to learn about SvelteKit
-		</p>
+		<div>
+			<div>created by: <a href="https://tannakaken.xyz" target="_blank">tannakaken</a>,</div>
+			<div>powered by: <a href="https://svelte.jp/" target="_blank">SvelteKit/Svelte</a>,</div>
+			<div>@copyleft; All Wrongs Reversed.</div>
+		</div>
 	</footer>
 </div>
 <SvelteToast />
@@ -44,7 +46,7 @@
 		flex-direction: column;
 		justify-content: center;
 		align-items: center;
-		padding: 12px;
+		padding: 0;
 	}
 
 	footer a {
@@ -52,8 +54,8 @@
 	}
 
 	@media (min-width: 480px) {
-		footer {
-			padding: 12px 0;
+		footer div div {
+			display: inline;
 		}
 	}
 </style>

@@ -252,7 +252,6 @@
 </svelte:head>
 
 <div class="editor">
-	<h1>Écriture ちょっと待ってくれよ</h1>
 	<div class="input">
 		<label for="title">タイトル:</label>
 		<input type="text" id="title" bind:value={title} />
@@ -407,6 +406,7 @@
 		border-style: thin;
 		border-radius: 2px;
 	}
+
 	.editor textarea {
 		width: 100%;
 		height: 60vh;
