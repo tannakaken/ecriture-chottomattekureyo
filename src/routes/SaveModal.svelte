@@ -81,6 +81,7 @@
 		translate: -50% -50%;
 		background-color: white;
 		padding: 4px;
+		border-radius: 4px;
 		animation: fade-out 0.7s ease-out;
 	}
 	dialog[open] {

@@ -2,7 +2,9 @@
 @component
 「Écriture ちょっと待ってくれよ」のロゴ。
 
-hoverでのアニメーションが設定されている。
+claudeで生成したものを修正
+
+hoverでのCSSアニメーションが設定されている。
 -->
 <svg role="img" aria-label="ロゴ" width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
     <defs>
@@ -15,7 +17,7 @@ hoverでのアニメーションが設定されている。
             <stop offset="100%" class="stop4" style="stop-color:#ff3e00;stop-opacity:0" />
         </linearGradient>
 
-        <!-- マスク定義：文字「A」の形状 -->
+        <!-- マスク定義：文字「É」の形状 -->
         <mask id="letterMask">
         <rect width="200" height="200" fill="black"/>
         <text x="100" y="150" text-anchor="middle" font-family="Arial, sans-serif" font-size="140" font-weight="bold" fill="white">É</text>

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { db, type Ecriture } from '../db';
+	import close from '$lib/images/close.svg';
 	import EcritureCard from './EcritureCard.svelte';
 
 	type Props = {
@@ -72,7 +73,12 @@
 	}}
 >
 	<div class="modal-content">
-		<h2>保存された文書一覧 <button onclick={closeDialog}>close</button></h2>
+		<div class="modal-header">
+			<h2>保存された文書一覧</h2>
+			<button type="button" class="close-button" onclick={closeDialog}>
+				<img class="close-icon" src={close} alt="閉じる" title="閉じる" />
+			</button>
+		</div>
 		<ul class="item-list">
 			{#each ecritures as ecriture}
 				<li class="ecriture">
@@ -94,8 +100,33 @@
 		translate: -50% -50%;
 		background-color: white;
 		padding: 4px;
+		border-radius: 4px;
 		animation: fade-out 0.7s ease-out;
 	}
+
+	.modal-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		margin-bottom: 1rem;
+	}
+
+	.close-button {
+		background: none;
+		border: none;
+		cursor: pointer;
+		padding: 0;
+		margin: 1px;
+		display: flex;
+		align-items: center;
+		transition: rotate 0.2s ease, opacity 0.2s ease;
+	}
+
+	.close-button:hover {
+		opacity: 0.7;
+		rotate: 90deg;
+	}
+
 	dialog[open] {
 		animation: fade-in 0.7s ease-out;
 	}
