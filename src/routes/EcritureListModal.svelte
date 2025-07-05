@@ -104,29 +104,6 @@
 		animation: fade-out 0.7s ease-out;
 	}
 
-	.modal-header {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		margin-bottom: 1rem;
-	}
-
-	.close-button {
-		background: none;
-		border: none;
-		cursor: pointer;
-		padding: 0;
-		margin: 1px;
-		display: flex;
-		align-items: center;
-		transition: rotate 0.2s ease, opacity 0.2s ease;
-	}
-
-	.close-button:hover {
-		opacity: 0.7;
-		rotate: 90deg;
-	}
-
 	dialog[open] {
 		animation: fade-in 0.7s ease-out;
 	}
@@ -170,5 +147,28 @@
 		100% {
 			background-color: rgb(0 0 0 / 25%);
 		}
+	}
+
+	.modal-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		margin-bottom: 1rem;
+	}
+
+	.close-button {
+		background: none;
+		border: none;
+		cursor: pointer;
+		padding: 0;
+		margin: 1px;
+		display: flex;
+		align-items: center;
+		transition: rotate 0.2s ease, opacity 0.2s ease;
+	}
+
+	.close-button:hover {
+		opacity: 0.7;
+		rotate: 90deg;
 	}
 </style>

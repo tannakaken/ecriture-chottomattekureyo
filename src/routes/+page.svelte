@@ -4,9 +4,13 @@
 	import { db, type EcritureInput } from '../db';
 	import EcritureListModal from './EcritureListModal.svelte';
 	import dayjs from 'dayjs';
+	import ja from 'dayjs/locale/ja';
+
 	import SaveModal from './SaveModal.svelte';
 	import { onMount } from 'svelte';
 	import { removeExtension, stringToDataURL } from '../utils';
+
+	dayjs.locale(ja);
 
 	/**
 	 * 今現在表示しているエクリチュールがIndexedDBに保存済みのものを編集した場合、そのID
